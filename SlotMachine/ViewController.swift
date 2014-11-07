@@ -45,6 +45,11 @@ class ViewController: UIViewController {
     
     var slots:[[Slot]] = []
     
+    // Stats
+    var credits = 0
+    var currentBet = 0
+    var winnings = 0
+    
     
     // Top Container
     var titleLabel:UILabel!
@@ -55,11 +60,10 @@ class ViewController: UIViewController {
         setupContainerViews()
         
         setupFirstContainer(self.firstContainer)
-        setupSecondContainer(self.secondContainer)
         setupThirdContainer(self.thirdContainer)
         setupFourthContainer(self.fourthContainer)
         
-        
+        hardReset()
     }
 
     override func didReceiveMemoryWarning() {
@@ -71,18 +75,48 @@ class ViewController: UIViewController {
     
     func resetButtonPressed(button:UIButton){
         println("resetButtonPressed ")
+        hardReset()
     }
     
     func betOneButtonPressed(button:UIButton){
-        println(button)
+        if credits <= 0{
+            showAlertWithText(header: "No more credits", message: "Reset Game")
+        }
+        else{
+            if currentBet < 5{
+                currentBet += 1
+                credits -= 1
+                updateMainView()
+            }
+            else{
+                showAlertWithText(message: "You can only bet 5 credits at a time!")
+            }
+        }
     }
     
     func betMaxButtonPressed (button: UIButton) {
-        println("betMaxButtonPressed")
+        
+        if credits <= 5{
+            showAlertWithText(header: "Not enough credits", message: "Bet Less")
+        }
+        else{
+            if currentBet < 5{
+                var creditsToBetMax = 5 - currentBet
+                credits -= creditsToBetMax
+                currentBet += creditsToBetMax
+                updateMainView()
+            }
+            else{
+                showAlertWithText(message: "You can only bet 5 credits at a time")
+            }
+        }
     }
     
-    // Generate a whole new set of imageViews each time we press the spin button
+    // Remove existing slot imageviews and
+    // generate a whole new set of imageViews each time we press the spin button
     func spinButtonPressed (button: UIButton) {
+        removeSlotImageViews()
+        
         slots = Factory.createSlots()
         setupSecondContainer(self.secondContainer)
     }
@@ -241,6 +275,47 @@ class ViewController: UIViewController {
         self.spinButton.addTarget(self, action: "spinButtonPressed:", forControlEvents: UIControlEvents.TouchUpInside)
         containerView.addSubview(self.spinButton)
         
+    }
+    
+    func removeSlotImageViews(){
+        // Check is secondContainer exists
+        if self.secondContainer != nil{
+            let container: UIView? = self.secondContainer
+            // Check is secondContainer has subViews
+            let subViews: Array? = container!.subviews
+            for view in subViews!{
+                // Remove the views from the secondContainer
+                view.removeFromSuperview()
+            }
+        }
+    }
+    
+    // Function to completely reset the game
+    func hardReset(){
+        removeSlotImageViews()
+        slots.removeAll(keepCapacity: true)
+        self.setupSecondContainer(self.secondContainer)
+        credits = 50
+        winnings = 0
+        currentBet = 0
+        
+        // Each time we do a hard rest we want to update our labels
+        updateMainView()
+    }
+    
+    // Function to update all the labels in the VC
+    func updateMainView(){
+        self.creditsLabel.text = "\(credits)"
+        self.betLabel.text = "\(currentBet)"
+        self.winnerPaidLabel.text = "\(winnings)"
+    }
+    
+    func showAlertWithText(header: String = "Warning", message: String){
+        
+        var alert = UIAlertController(title: header, message: message, preferredStyle: UIAlertControllerStyle.Alert)
+        alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
+        
+        self.presentViewController(alert, animated: true, completion: nil)
     }
 
 }
