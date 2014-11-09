@@ -90,7 +90,7 @@ class SlotBrain{
     class func checkFlush(slotRow:[Slot]) -> Bool{
         let slot1 = slotRow[0]
         let slot2 = slotRow[1]
-        let slot3 = slotRow[3]
+        let slot3 = slotRow[2]
         
         if slot1.isRed == true && slot2.isRed == true && slot3.isRed == true{
             return true

@@ -119,6 +119,14 @@ class ViewController: UIViewController {
         
         slots = Factory.createSlots()
         setupSecondContainer(self.secondContainer)
+        
+        // Implement the SlotBrain class for keeping track of the scores
+        var winningsMultiplier = SlotBrain.computeWinnings(slots)
+        
+        winnings = winningsMultiplier * currentBet
+        credits += winnings
+        currentBet = 0
+        updateMainView()
     }
     
     
